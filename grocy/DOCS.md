@@ -211,7 +211,7 @@ Allows posting to a webhook to print labels
 - `label_printer_webhook` The URI that Grocy will POST to when asked to print a label
 - `label_printer_run_server` Whether the webhook will be called server- or client-side
 - `label_printer_params` Additional parameters supplied to the webhook
-- `label_printer_hook_json`: TRUE to use JSON or FALSE to use normal POST request variables
+- `label_printer_hook_json` TRUE to use JSON or FALSE to use normal POST request variables
 
 ### Option: `Thermal Printer`
 
