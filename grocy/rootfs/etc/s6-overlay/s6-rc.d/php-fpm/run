@@ -49,15 +49,6 @@ if bashio::config.false 'features.tasks'; then
     export GROCY_FEATURE_FLAG_TASKS=0
 fi
 
-if bashio::config.true 'features.label_printer'; then
-    export GROCY_FEATURE_FLAG_LABEL_PRINTER=1
-fi
-
-if bashio::config.true 'features.thermal_printer'; then
-    export FEATURE_FLAG_THERMAL_PRINTER=1
-    export GROCY_TPRINTER_IS_NETWORK_PRINTER=1
-fi
-
 if bashio::config.has_value 'tweaks.calendar_first_day_of_week'; then
     caldayweek=$(bashio::config 'tweaks.calendar_first_day_of_week')
     export GROCY_CALENDAR_FIRST_DAY_OF_WEEK=${caldayweek}
@@ -100,6 +91,10 @@ if bashio::config.false 'tweaks.stock_count_opened_products_against_minimum_stoc
     export GROCY_FEATURE_SETTING_STOCK_COUNT_OPENED_PRODUCTS_AGAINST_MINIMUM_STOCK_AMOUNT=0
 fi
 
+if bashio::config.true 'printer.label_printer'; then
+    export GROCY_FEATURE_FLAG_LABEL_PRINTER=1
+fi
+
 if bashio::config.has_value 'printer.label_printer_webhook'; then
     label_printer_webhook=$(bashio::config 'printer.label_printer_webhook')
     export GROCY_LABEL_PRINTER_WEBHOOK=${label_printer_webhook}
@@ -116,6 +111,11 @@ fi
 
 if bashio::config.true 'printer.label_printer_hook_json'; then
     export GROCY_LABEL_PRINTER_HOOK_JSON=1
+fi
+
+if bashio::config.true 'printer.thermal_printer'; then
+    export FEATURE_FLAG_THERMAL_PRINTER=1
+    export GROCY_TPRINTER_IS_NETWORK_PRINTER=1
 fi
 
 if bashio::config.false 'printer.tprinter_print_quantity_name'; then
