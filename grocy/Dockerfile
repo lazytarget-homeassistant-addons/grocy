@@ -22,7 +22,6 @@ RUN \
         php85-intl=8.5.4-r0 \
         php85-ldap=8.5.4-r0 \
         php85-mbstring=8.5.4-r0 \
-        php85-opcache=8.5.4-r0 \
         php85-pdo_sqlite=8.5.4-r0 \
         php85-pdo=8.5.4-r0 \
         php85-simplexml=8.5.4-r0 \
