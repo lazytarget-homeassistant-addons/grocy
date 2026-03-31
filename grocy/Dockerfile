@@ -10,7 +10,6 @@ ARG GROCY_VERSION="v4.6.0"
 # hadolint ignore=DL3003,DL3018
 RUN \
     apk add --no-cache \
-        composer \
         nginx \
         patch \
         php85-ctype=8.5.4-r0 \
@@ -35,6 +34,10 @@ RUN \
         php85-openssl=8.5.4-r0 \
         php85-phar=8.5.4-r0 \
     \
+    && ln -sf /usr/bin/php85 /usr/bin/php \
+    && php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
+    && php composer-setup.php --install-dir=/usr/local/bin --filename=composer \
+    && php -r "unlink('composer-setup.php');" \
     && npm install -g yarn@1.22.22 \
     && yarn global add modclean \
     \
