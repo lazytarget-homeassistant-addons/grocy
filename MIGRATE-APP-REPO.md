@@ -29,6 +29,17 @@ Home Assistant Supervisor, not inside Grocy's data directory. You will need to
 
 ## Before you begin
 
+### Which method should I use?
+
+| Method | Difficulty | Requirements | Best for |
+|---|---|---|---|
+| **1. Rooted SSH** | Easy | Advanced SSH addon with Protection Mode off | Users with SSH access (recommended) |
+| **2. Backup manipulation** | Medium | A computer with bash/terminal | Anyone, no special addons needed |
+| **3. Migration script** | Easy | A computer with bash/terminal | Anyone (automated version of Method 2) |
+| **4. Portainer** | Medium | Portainer addon installed | Docker-savvy users |
+
+### Prerequisites
+
 1. **Write down your current add-on settings.** Go to **Settings → Add-ons →
    Grocy → Configuration** and note or screenshot all your option values
    (culture, currency, features, tweaks, etc.).
@@ -265,6 +276,86 @@ steps 13–15).
 
 > **Note:** The migration script is located at
 > [`scripts/migrate-grocy-backup.sh`](scripts/migrate-grocy-backup.sh).
+
+---
+
+## Method 4: Via Portainer (Docker-level access)
+
+**Best for:** Users who have
+[Portainer](https://github.com/alexbelgium/hassio-addons/tree/master/portainer)
+installed and are comfortable with Docker concepts.
+
+[Portainer](https://github.com/alexbelgium/hassio-addons) (from
+alexbelgium's add-on repository) provides Docker container management with
+access to container volumes — including add-on data directories that are
+normally isolated from other add-ons.
+
+### Steps
+
+1. Install **Portainer** from the
+   [alexbelgium add-on repository](https://github.com/alexbelgium/hassio-addons)
+   if not already installed.
+
+2. **Stop** both the old and new Grocy add-ons.
+
+3. Open Portainer and navigate to **Containers**. Find the containers for both
+   Grocy add-ons (they'll contain the slug in their name). Note the container
+   names.
+
+4. Go to **Volumes** and identify the data volumes for both Grocy add-ons.
+   Alternatively, inspect each container's **Mounts** to find the host path for
+   `/data`.
+
+5. Use Portainer's **Console** feature on any running container that has shell
+   access, or use the **exec** functionality to copy files between the volume
+   paths:
+
+   ```bash
+   # From Portainer's console (or via docker exec)
+   cp /path/to/old-addon-volume/grocy/grocy.db \
+      /path/to/new-addon-volume/grocy/grocy.db
+   ```
+
+   Alternatively, Portainer allows you to **browse and download/upload** files
+   from container volumes directly through its web UI.
+
+6. **Apply your add-on settings** and start the new Grocy add-on.
+
+> **Note:** The exact workflow depends on your Portainer version and
+> configuration. This method requires some familiarity with Docker concepts.
+
+---
+
+## Why can't other file-management add-ons help?
+
+You might wonder whether add-ons like **Filebrowser**, **Cloud Commander**,
+**Samba share**, or **File Editor** could help copy files between add-on data
+directories. Unfortunately, **they cannot** — here's why:
+
+Home Assistant's add-on architecture provides directory mappings via the `map`
+option in `config.yaml`. The available mount types are:
+
+| Mount type | What it exposes | Can access addon data? |
+|---|---|---|
+| `homeassistant_config` | `/config` — HA's main configuration | No |
+| `addon_config` | Addon-specific config (visible in File Editor) | No |
+| `ssl` | `/ssl` — SSL certificates | No |
+| `addons` | Addon **source code** (not data) | No |
+| `backup` | `/backup` — HA backup archives | No |
+| `share` | `/share` — shared between addons | No |
+| `media` | `/media` — media files | No |
+| `all_addon_configs` | All addon configs (not data) | No |
+| `data` | The addon's **own** data directory only | Own only |
+
+The critical limitation: **each add-on can only access its own `/data`
+directory**. There is no mount type that exposes other add-ons' persistent data
+(`/mnt/data/supervisor/addons/data/<slug>/`). This is an intentional security
+boundary.
+
+The only ways to cross this boundary are:
+- **Root-level SSH access** (Method 1)
+- **Backup archive manipulation** (Methods 2 & 3)
+- **Docker-level access** via Portainer (Method 4)
 
 ---
 
