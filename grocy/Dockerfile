@@ -36,7 +36,7 @@ RUN \
         php85-openssl=8.5.4-r0 \
         php85-phar=8.5.4-r0 \
     \
-    && npm install -g yarn \
+    && npm install -g yarn@1.22.22 \
     && yarn global add modclean \
     \
     && git clone --branch "${GROCY_VERSION}" --depth=1 \
