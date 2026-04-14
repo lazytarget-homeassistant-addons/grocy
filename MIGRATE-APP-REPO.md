@@ -6,6 +6,10 @@ add-on to the actively maintained
 [lazytarget-homeassistant-apps/grocy](https://github.com/lazytarget-homeassistant-apps/grocy)
 fork.
 
+The same process also works in reverse if you ever need to migrate back to the
+original `hassio-addons` Grocy add-on. In that case, treat the currently used
+add-on as the source and the destination add-on as the target in all steps.
+
 ## Why is manual migration needed?
 
 Home Assistant Supervisor identifies add-ons by their **slug**, which is
@@ -16,12 +20,12 @@ original Grocy add-on will **not** carry over automatically.
 
 ## What needs to be migrated
 
-| Data | Location (inside container) | Importance |
-|---|---|---|
-| Grocy database | `/data/grocy/grocy.db` | **Critical** — all your products, stock, recipes, chores, etc. |
-| Uploaded files | `/data/grocy/storage/` | Important — product images, file attachments |
-| View cache | `/data/grocy/viewcache/` | Not needed — regenerated automatically |
-| Grocy PHP config | `/data/grocy/config.php` | Not needed — generated from add-on options on each start |
+| Data             | Location (inside container) | Importance                                                     |
+| ---------------- | --------------------------- | -------------------------------------------------------------- |
+| Grocy database   | `/data/grocy/grocy.db`      | **Critical** — all your products, stock, recipes, chores, etc. |
+| Uploaded files   | `/data/grocy/storage/`      | Important — product images, file attachments                   |
+| View cache       | `/data/grocy/viewcache/`    | Not needed — regenerated automatically                         |
+| Grocy PHP config | `/data/grocy/config.php`    | Not needed — generated from add-on options on each start       |
 
 **Add-on settings** (culture, currency, features, tweaks, etc.) are stored by
 Home Assistant Supervisor, not inside Grocy's data directory. You will need to
@@ -31,12 +35,12 @@ Home Assistant Supervisor, not inside Grocy's data directory. You will need to
 
 ### Which method should I use?
 
-| Method | Difficulty | Requirements | Best for |
-|---|---|---|---|
-| **1. Rooted SSH** | Easy | Advanced SSH addon with Protection Mode off | Users with SSH access (recommended) |
-| **2. Backup manipulation** | Medium | A computer with bash/terminal | Anyone, no special addons needed |
-| **3. Migration script** | Easy | A computer with bash/terminal | Anyone (automated version of Method 2) |
-| **4. Portainer** | Medium | Portainer addon installed | Docker-savvy users |
+| Method                     | Difficulty | Requirements                                 | Best for                               |
+| -------------------------- | ---------- | -------------------------------------------- | -------------------------------------- |
+| **1. Rooted SSH**          | Easy       | Advanced SSH add-on with Protection Mode off | Users with SSH access (recommended)    |
+| **2. Backup manipulation** | Medium     | A computer with bash/terminal                | Anyone, no special add-ons needed      |
+| **3. Migration script**    | Easy       | A computer with bash/terminal                | Anyone (automated version of Method 2) |
+| **4. Portainer**           | Medium     | Portainer add-on installed                   | Docker-savvy users                     |
 
 ### Prerequisites
 
@@ -106,6 +110,7 @@ the slug.
    ```
 
    You should see two directories, e.g.:
+
    ```
    a0d7b954_grocy
    xxxxxxxx_grocy
@@ -140,7 +145,7 @@ the slug.
 
 7. **Start** the new Grocy add-on and verify your data is intact.
 
-8. *(Optional)* Once you're satisfied, uninstall the old add-on.
+8. _(Optional)_ Once you're satisfied, uninstall the old add-on.
 
 ---
 
@@ -335,17 +340,17 @@ directories. Unfortunately, **they cannot** — here's why:
 Home Assistant's add-on architecture provides directory mappings via the `map`
 option in `config.yaml`. The available mount types are:
 
-| Mount type | What it exposes | Can access addon data? |
-|---|---|---|
-| `homeassistant_config` | `/config` — HA's main configuration | No |
-| `addon_config` | Addon-specific config (visible in File Editor) | No |
-| `ssl` | `/ssl` — SSL certificates | No |
-| `addons` | Addon **source code** (not data) | No |
-| `backup` | `/backup` — HA backup archives | No |
-| `share` | `/share` — shared between addons | No |
-| `media` | `/media` — media files | No |
-| `all_addon_configs` | All addon configs (not data) | No |
-| `data` | The addon's **own** data directory only | Own only |
+| Mount type             | What it exposes                                 | Can access add-on data? |
+| ---------------------- | ----------------------------------------------- | ----------------------- |
+| `homeassistant_config` | `/config` — HA's main configuration             | No                      |
+| `addon_config`         | Add-on-specific config (visible in File Editor) | No                      |
+| `ssl`                  | `/ssl` — SSL certificates                       | No                      |
+| `addons`               | Add-on **source code** (not data)               | No                      |
+| `backup`               | `/backup` — HA backup archives                  | No                      |
+| `share`                | `/share` — shared between addons                | No                      |
+| `media`                | `/media` — media files                          | No                      |
+| `all_addon_configs`    | All add-on configs (not data)                   | No                      |
+| `data`                 | The addon's **own** data directory only         | Own only                |
 
 The critical limitation: **each add-on can only access its own `/data`
 directory**. There is no mount type that exposes other add-ons' persistent data
@@ -353,9 +358,13 @@ directory**. There is no mount type that exposes other add-ons' persistent data
 boundary.
 
 The only ways to cross this boundary are:
+
 - **Root-level SSH access** (Method 1)
 - **Backup archive manipulation** (Methods 2 & 3)
 - **Docker-level access** via Portainer (Method 4)
+
+These methods are direction-agnostic. They can be used both for migrating from
+the original add-on to this fork and for migrating back to the original add-on.
 
 ---
 

@@ -14,7 +14,8 @@
 # ==============================================================================
 set -euo pipefail
 
-readonly SCRIPT_NAME="$(basename "$0")"
+SCRIPT_NAME="$(basename "$0")"
+readonly SCRIPT_NAME
 
 # ---- Helpers ----------------------------------------------------------------
 
@@ -134,7 +135,14 @@ log "Repackaging new add-on archive..."
 (cd "${NEW_ADDON_DIR}" && tar czf "${NEW_DIR}/${NEW_ADDON_ARCHIVE_NAME}" .)
 
 log "Repackaging final backup..."
-(cd "${NEW_DIR}" && tar cf "${OUTPUT}" ./*.json ./*.tar.gz 2>/dev/null || tar cf "${OUTPUT}" ./*)
+(
+    cd "${NEW_DIR}"
+    if compgen -G "*.json" >/dev/null && compgen -G "*.tar.gz" >/dev/null; then
+        tar cf "${OUTPUT}" ./*.json ./*.tar.gz
+    else
+        tar cf "${OUTPUT}" ./*
+    fi
+)
 
 log ""
 log "=========================================="
